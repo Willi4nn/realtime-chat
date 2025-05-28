@@ -1,0 +1,9 @@
+@import "tailwindcss";
+@tailwind utilities;
+
+body {
+  @apply bg-black text-white;
+  button {
+    cursor: pointer;
+  }
+}
