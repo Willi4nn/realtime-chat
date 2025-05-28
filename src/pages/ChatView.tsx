@@ -5,7 +5,6 @@ import MyProfile from "../components/MyProfile";
 import { useUsers } from "../hooks/useUsers";
 import useUserStore from "../store/useSlice";
 
-
 export default function ChatView() {
   const currentUser = useUserStore((state) => state.user);
   const selectedUserId = useUserStore((state) => state.selectedUserId);
@@ -24,6 +23,8 @@ export default function ChatView() {
     );
   }, [searchText, users, currentUser?.id]);
 
+
+
   return (
     <div className="flex h-screen justify-center items-center">
       <MyProfile />
@@ -39,27 +40,34 @@ export default function ChatView() {
               disabled={!selectedUserId}
               autoComplete="off"
             />
-            <ul className="w-full flex flex-col justify-start gap-2 items-center mt-4">
-              {loading ? (
-                <span className="text-white">Carregando...</span>
-              ) : (
-                filteredUsers
-                  .map((user) => (
-                    <li key={user.id}
-                      style={{ backgroundColor: selectedUserId === user.id ? '#1e293b' : 'transparent' }}
-                      className={"flex items-center p-2 justify-start gap-2 h-12 w-full rounded-md cursor-pointer"}
-                      onClick={() => setSelectedUserId(user.id)}
-                    >
-                      <img
-                        src={user.photo || defaultLogo}
-                        alt={`Foto de ${user.name}`}
-                        className="w-8 h-8 rounded-full"
-                      />
-                      <span>{user.name}</span>
-                    </li>
-                  ))
-              )}
-            </ul>
+            <div className="flex-1 min-h-0 mt-4 overflow-y-auto max-h-[calc(100vh-100px)]
+            custom-scrollbar"
+              style={{
+                scrollbarColor: 'rgba(156, 163, 175, 0.5) transparent'
+              }}
+            >
+              <ul className="w-full flex flex-col justify-start gap-2 items-center">
+                {loading ? (
+                  <span className="text-white">Carregando...</span>
+                ) : (
+                  filteredUsers
+                    .map((user) => (
+                      <li key={user.id}
+                        style={{ backgroundColor: selectedUserId === user.id ? '#1e293b' : 'transparent' }}
+                        className={"flex items-center p-2 justify-start gap-2 h-12 w-full rounded-md cursor-pointer"}
+                        onClick={() => setSelectedUserId(user.id)}
+                      >
+                        <img
+                          src={user.photo || defaultLogo}
+                          alt={`Foto de ${user.name}`}
+                          className="w-8 h-8 rounded-full"
+                        />
+                        <span>{user.name}</span>
+                      </li>
+                    ))
+                )}
+              </ul>
+            </div>
           </div>
           <div className="flex flex-1 w-full min-h-0 bg-slate-800">
             {selectedUserId && <Chats selectedUserId={selectedUserId} currentUserId={currentUser?.id} selectedUser={selectedUser} />}
