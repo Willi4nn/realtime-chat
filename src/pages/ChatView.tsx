@@ -1,54 +1,28 @@
-import { collection, getDocs } from "firebase/firestore";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import defaultLogo from "../assets/profile-icon.png";
 import Chats from "../components/Chats";
 import MyProfile from "../components/MyProfile";
-import { db } from "../firebase";
+import { useUsers } from "../hooks/useUsers";
 import useUserStore from "../store/useSlice";
 
-interface ChatUser {
-  id: string;
-  displayName: string;
-  photo: string | null;
-  email: string;
-}
 
 export default function ChatView() {
   const currentUser = useUserStore((state) => state.user);
-  const [usersList, setUsersList] = useState<ChatUser[]>([]);
-  const [loading, setLoading] = useState(true);
   const selectedUserId = useUserStore((state) => state.selectedUserId);
   const setSelectedUserId = useUserStore((state) => state.setSelectedUserId);
+  const { users, loading } = useUsers();
+  const selectedUser = users.find(user => user.id === selectedUserId) || null;
   const [searchText, setSearchText] = useState("");
-  const selectedUser = usersList.find(user => user.id === selectedUserId) || null;
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "users"));
-        const users = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          displayName: doc.data().displayName,
-          photo: doc.data().photo || defaultLogo,
-          email: doc.data().email,
-        }));
-        setUsersList(users);
-      } catch (error) {
-        console.error("Erro ao buscar usuários:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUsers();
-  }, []);
+  const filteredUsers = useMemo(() => {
+    const availableUsers = users.filter(user => user.id !== currentUser?.id);
 
-  const filteredData = useMemo(() => {
-    if (!searchText) return usersList;
+    if (!searchText) return availableUsers;
 
-    return usersList.filter(user =>
-      user.displayName.toLowerCase().includes(searchText.toLowerCase())
+    return availableUsers.filter(user =>
+      user.name && user.name.toLowerCase().includes(searchText.toLowerCase())
     );
-  }, [searchText, usersList]);
+  }, [searchText, users, currentUser?.id]);
 
   return (
     <div className="flex h-screen justify-center items-center">
@@ -69,8 +43,7 @@ export default function ChatView() {
               {loading ? (
                 <span className="text-white">Carregando...</span>
               ) : (
-                filteredData
-                  .filter((user) => user.id !== currentUser?.id)
+                filteredUsers
                   .map((user) => (
                     <li key={user.id}
                       style={{ backgroundColor: selectedUserId === user.id ? '#1e293b' : 'transparent' }}
@@ -79,10 +52,10 @@ export default function ChatView() {
                     >
                       <img
                         src={user.photo || defaultLogo}
-                        alt={`Foto de ${user.displayName}`}
+                        alt={`Foto de ${user.name}`}
                         className="w-8 h-8 rounded-full"
                       />
-                      <span>{user.displayName}</span>
+                      <span>{user.name}</span>
                     </li>
                   ))
               )}

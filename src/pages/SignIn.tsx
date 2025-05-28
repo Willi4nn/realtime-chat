@@ -20,13 +20,12 @@ export default function SignIn() {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Busca dados extras do Firestore
       const userDoc = await getDoc(doc(db, "users", user.uid));
       const userData = userDoc.exists() ? userDoc.data() : {};
 
       login({
         id: user.uid,
-        name: user.displayName || userData.displayName || user.email || "Usuário",
+        name: userData.name || user.email || "Usuário",
         email: user.email || "",
         photo: userData.photo || user.photoURL || null,
       });

@@ -81,7 +81,7 @@ export default function SignUp() {
   const updateUserData = async (userId: string, photo: string) => {
     try {
       await setDoc(doc(db, "users", userId), {
-        displayName: name,
+        name: name,
         email: email,
         photo: photo || null,
       })

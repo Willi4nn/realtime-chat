@@ -3,6 +3,8 @@ import { PaperPlaneTilt } from "phosphor-react";
 import { useEffect, useRef, useState } from "react";
 import BackgroundImg from "../assets/background.jpg";
 import { db } from "../firebase";
+import { User } from "../types/User";
+import { formatTime } from "../utils/formatTime";
 import UserProfile from "./UserProfile";
 
 interface Message {
@@ -14,14 +16,8 @@ interface Message {
 interface ChatsProps {
   selectedUserId: string;
   currentUserId: string | undefined;
-  selectedUser: {
-    id: string;
-    displayName: string;
-    photo: string | null;
-    email: string;
-  } | null;
+  selectedUser: User | null;
 }
-
 
 export default function Chats({ selectedUserId, currentUserId, selectedUser }: ChatsProps) {
   const [newMessage, setNewMessage] = useState("");
@@ -113,7 +109,7 @@ export default function Chats({ selectedUserId, currentUserId, selectedUser }: C
           ) : (
             messages.map((message, index) => (
               <div
-                className={`max-w-[70%] p-2 my-2 mx-4 rounded-2xl shadow 
+                className={`max-w-[40%] p-2 my-2 mx-4 rounded-2xl shadow 
                 ${message.senderId === currentUserId
                     ? 'bg-blue-600 text-white self-end rounded-br-none'
                     : 'bg-gray-200 text-gray-900 self-start rounded-bl-none'
@@ -122,6 +118,9 @@ export default function Chats({ selectedUserId, currentUserId, selectedUser }: C
                 key={index}
               >
                 {message.text}
+                <span className={`block text-xs pl-3 ${message.senderId === currentUserId ? "text-blue-200" : "text-gray-500"}`} style={{ textAlign: "right" }}>
+                  {formatTime(message.timestamp)}
+                </span>
               </div>
             ))
           )}

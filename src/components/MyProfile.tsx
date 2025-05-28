@@ -1,23 +1,34 @@
-import { SignOut } from 'phosphor-react';
-import { useNavigate } from 'react-router-dom';
+import { List, SignOut } from 'phosphor-react';
+import { useState } from 'react';
 import defaultLogo from "../assets/profile-icon.png";
-import { auth } from "../firebase";
+import { useLogout } from '../hooks/useLogout';
 import useUserStore from '../store/useSlice';
+import { User } from '../types/User';
 
-export default function UserProfile() {
-  const currentUser = useUserStore((state) => state.user);
-  const navigate = useNavigate();
-  const logout = useUserStore((state) => state.logout);
+export default function MyProfile() {
+  const currentUser = useUserStore((state) => state.user) as User | null;
+  const logout = useLogout();
+  const [isExpanded, setIsExpanded] = useState(true);
 
   const handleLogout = async () => {
-    await auth.signOut();
     logout();
-    navigate('/login');
+  };
+
+  const toggleSidebar = () => {
+    setIsExpanded(!isExpanded);
   };
 
   return (
-    <div className="flex flex-col bg-slate-800 h-full w-60 p-5 items-center">
-      <div className='flex items-center justify-center'>
+    <div className={`flex flex-col bg-slate-800 h-full p-4 items-start transition-all duration-300 gap-4 ${isExpanded ? 'w-60' : 'w-18'
+      }`}>
+        <button
+          onClick={toggleSidebar}
+          className="text-white w-10 h-10 flex items-center justify-center hover:bg-slate-700 rounded-full"
+          title={isExpanded ? "Encolher sidebar" : "Expandir sidebar"}
+        >
+          <List size={32}/>
+        </button>
+      <div className="flex items-center">
         <img
           src={currentUser?.photo || defaultLogo}
           alt="Foto de perfil"
@@ -30,7 +41,7 @@ export default function UserProfile() {
       </div>
       <button
         onClick={handleLogout}
-        className="mt-4 text-white w-10 h-10 flex items-center justify-center rounded-full"
+        className=" text-white w-10 h-10 flex items-center justify-center rounded-full"
         title="Sair"
       >
         <SignOut size={28} weight="bold" />
