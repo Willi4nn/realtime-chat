@@ -1,4 +1,6 @@
+import { MagnifyingGlass } from "phosphor-react";
 import { useMemo, useState } from "react";
+import { BeatLoader } from "react-spinners";
 import defaultLogo from "../assets/profile-icon.png";
 import Chats from "../components/Chats";
 import MyProfile from "../components/MyProfile";
@@ -23,23 +25,27 @@ export default function ChatView() {
     );
   }, [searchText, users, currentUser?.id]);
 
-
-
   return (
     <div className="flex h-screen justify-center items-center">
       <MyProfile />
-      <div className="bg-slate-800 w-full flex flex-col items-center h-full">
+      <div className="bg-slate-700 w-full flex flex-col items-center h-full">
         <div className="flex flex-1 w-full min-h-0">
           <div className="flex-col h-full w-70 bg-slate-950 p-4">
-            <input
-              type="text"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              placeholder="Pesquisar usuário..."
-              className="w-full p-2 pl-5 rounded-full border border-gray-500"
-              disabled={!selectedUserId}
-              autoComplete="off"
-            />
+            <div className="relative w-full">
+              <input
+                type="text"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                placeholder="Pesquisar usuário..."
+                className="w-full p-2 pl-10 pr-4 rounded-full border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                disabled={!selectedUserId}
+                autoComplete="off"
+              />
+              <MagnifyingGlass
+                size={20}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+            </div>
             <div className="flex-1 min-h-0 mt-4 overflow-y-auto max-h-[calc(100vh-100px)]
             custom-scrollbar"
               style={{
@@ -48,13 +54,20 @@ export default function ChatView() {
             >
               <ul className="w-full flex flex-col justify-start gap-2 items-center">
                 {loading ? (
-                  <span className="text-white">Carregando...</span>
+                  <div className="flex justify-center items-center w-full h-full">
+                    <BeatLoader color="#F8FAFC" size={15} />
+                  </div>
                 ) : (
                   filteredUsers
                     .map((user) => (
-                      <li key={user.id}
-                        style={{ backgroundColor: selectedUserId === user.id ? '#1e293b' : 'transparent' }}
-                        className={"flex items-center p-2 justify-start gap-2 h-12 w-full rounded-md cursor-pointer"}
+                      <li
+                        key={user.id}
+                        className={`
+                        flex items-center p-2 justify-start gap-2 h-12 w-full rounded-md cursor-pointer
+                        relative overflow-hidden group
+                        transition-all duration-200 ease-in-out
+                        ${selectedUserId === user.id ? 'bg-sky-700 animate-selecting' : 'hover:bg-slate-800/70'}
+                        `}
                         onClick={() => setSelectedUserId(user.id)}
                       >
                         <img
@@ -62,7 +75,9 @@ export default function ChatView() {
                           alt={`Foto de ${user.name}`}
                           className="w-8 h-8 rounded-full"
                         />
-                        <span>{user.name}</span>
+                        <span className="truncate overflow-hidden whitespace-nowrap">
+                          {user.name}
+                        </span>
                       </li>
                     ))
                 )}

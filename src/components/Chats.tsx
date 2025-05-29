@@ -1,6 +1,7 @@
 import { arrayUnion, doc, getDoc, onSnapshot, setDoc, Timestamp, updateDoc } from "firebase/firestore";
 import { PaperPlaneTilt } from "phosphor-react";
 import { useEffect, useRef, useState } from "react";
+import { BeatLoader } from "react-spinners";
 import BackgroundImg from "../assets/background.jpg";
 import { db } from "../firebase";
 import { User } from "../types/User";
@@ -90,7 +91,7 @@ export default function Chats({ selectedUserId, currentUserId, selectedUser }: C
   return (
     <div className="flex flex-col h-full w-full">
       <UserProfile user={selectedUser} />
-      <div className="flex flex-col flex-1 w-full min-h-0 bg-cover bg-center relative"
+      <div className="flex flex-col  flex-1 w-full min-h-0 bg-cover bg-center relative"
         style={{
           backgroundImage: `url(${BackgroundImg})`,
           opacity: 1
@@ -103,9 +104,13 @@ export default function Chats({ selectedUserId, currentUserId, selectedUser }: C
           }}
         >
           {loading ? (
-            <span className="flex items-center justify-center h-full">Carregando mensagens...</span>
+            <div className="flex justify-center items-center w-full h-full">
+              <BeatLoader color="#F8FAFC" size={15} />
+            </div>
           ) : messages.length === 0 ? (
-            <div className="flex items-center justify-center h-full">Sem mensagens</div>
+            <div className="flex items-center justify-center h-full">
+              <h2 className="text-2xl">Sem mensagens</h2>
+            </div>
           ) : (
             messages.map((message, index) => (
               <div
@@ -126,7 +131,7 @@ export default function Chats({ selectedUserId, currentUserId, selectedUser }: C
           )}
           <div ref={messagesEndRef} />
         </div>
-        <div className="flex-shrink-0 border-t border-gray-300/20">
+        <div className="flex-shrink-0 border-t border-gray-300/20 backdrop-blur-[2px]">
           <form
             className="flex items-center gap-2 p-4"
             onSubmit={e => {

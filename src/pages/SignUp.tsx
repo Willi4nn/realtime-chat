@@ -94,7 +94,7 @@ export default function SignUp() {
 
   return (
     <div className="flex justify-center items-center h-screen w-full">
-      <div className="flex flex-col p-6 rounded-xl justify-between items-center bg-slate-900 shadow-lg shadow-slate-900/50 w-64 space-y-4">
+      <div className="flex flex-col p-6 rounded-xl justify-between items-center bg-slate-900 shadow-lg shadow-slate-900/50 w-80 space-y-4">
         <h2 className="text-xl font-semibold text-white">Cadastrar</h2>
         <img src={photo || defaultLogo} alt="Foto de perfil" className="w-16 h-16 rounded-full" />
         <div className="w-full space-y-3">

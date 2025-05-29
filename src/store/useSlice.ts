@@ -8,6 +8,7 @@ interface UserState {
   login: (userData: User) => void;
   logout: () => void;
   setSelectedUserId: (id: string | null) => void;
+  updatePhoto: (newPhotoUrl: string) => void;
 }
 
 const useUserStore = create<UserState>()(
@@ -18,6 +19,13 @@ const useUserStore = create<UserState>()(
       login: (user) => set({ user }),
       logout: () => set({ user: null, selectedUserId: null }),
       setSelectedUserId: (id) => set({ selectedUserId: id }),
+      updatePhoto: (newPhotoUrl) =>
+        set((state) => {
+          if (state.user) {
+            return { user: { ...state.user, photo: newPhotoUrl } };
+          }
+          return state;
+        }),
     }),
     {
       name: "user-storage",
