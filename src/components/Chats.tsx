@@ -1,5 +1,5 @@
 import { arrayUnion, doc, getDoc, onSnapshot, setDoc, Timestamp, updateDoc } from "firebase/firestore";
-import { PaperPlaneTilt } from "phosphor-react";
+import { ArrowLeft, PaperPlaneTilt } from "phosphor-react";
 import { useEffect, useRef, useState } from "react";
 import { BeatLoader } from "react-spinners";
 import BackgroundImg from "../assets/background.jpg";
@@ -18,14 +18,18 @@ interface ChatsProps {
   selectedUserId: string;
   currentUserId: string | undefined;
   selectedUser: User | null;
+  isMobile?: boolean;
+  onBack?: () => void;
 }
 
-export default function Chats({ selectedUserId, currentUserId, selectedUser }: ChatsProps) {
+export default function Chats({ selectedUserId, currentUserId, selectedUser, isMobile, onBack }: ChatsProps) {
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isOtherTyping, setIsOtherTyping] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -44,9 +48,11 @@ export default function Chats({ selectedUserId, currentUserId, selectedUser }: C
       if (docSnapshot.exists()) {
         const data = docSnapshot.data();
         setMessages(data.messages || []);
+        setIsOtherTyping(data.typing === selectedUserId);
       }
       else {
         setMessages([]);
+        setIsOtherTyping(false);
       }
       setLoading(false);
     }, (error) => {
@@ -57,8 +63,21 @@ export default function Chats({ selectedUserId, currentUserId, selectedUser }: C
     return () => {
       unSubscribe();
     }
-  }, [chatId]);
+  }, [chatId, selectedUserId]);
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value);
+    if (chatId && currentUserId) {
+      const chatDocRef = doc(db, "chats", chatId);
+      updateDoc(chatDocRef, { typing: currentUserId });
+
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+
+      typingTimeoutRef.current = setTimeout(() => {
+        updateDoc(chatDocRef, { typing: false });
+      }, 2000);
+    }
+  };
 
   const sendMessage = async () => {
     if (newMessage.trim() === "" || !chatId || !currentUserId) return;
@@ -72,6 +91,9 @@ export default function Chats({ selectedUserId, currentUserId, selectedUser }: C
         senderId: currentUserId,
         timestamp: Timestamp.now(),
       };
+
+      setNewMessage("");
+      
       if (docSnapshot.exists()) {
         await updateDoc(chatDocRef, {
           messages: arrayUnion(message)
@@ -81,7 +103,7 @@ export default function Chats({ selectedUserId, currentUserId, selectedUser }: C
           messages: [message],
         })
       }
-      setNewMessage("");
+      updateDoc(chatDocRef, { typing: false });
     }
     catch (error) {
       console.error("Erro ao enviar mensagem:", error);
@@ -90,11 +112,34 @@ export default function Chats({ selectedUserId, currentUserId, selectedUser }: C
 
   return (
     <div className="flex flex-col h-full w-full">
-      <UserProfile user={selectedUser} />
+      {/* Mobile header with back button */}
+      {isMobile && onBack && (
+        <div className="absolute top-0 left-0 right-0 z-10 bg-slate-800/90 backdrop-blur-sm p-3 flex items-center gap-3">
+          <button
+            onClick={onBack}
+            className="p-2 rounded-full hover:bg-slate-700/50 text-white"
+            aria-label="Voltar"
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <div className="flex items-center gap-3">
+            <img src={selectedUser?.photo || undefined} alt={selectedUser?.name || 'Usuário'} className="w-8 h-8 rounded-full" />
+            <div>
+              <div className="text-white text-sm font-medium">{selectedUser?.name || 'Usuário'}</div>
+              <div className="text-white/60 text-xs">{isOtherTyping ? "Digitando..." : ""}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* On desktop UserProfile shows; on mobile we already show profile inside header above */}
+      {!isMobile && <UserProfile user={selectedUser} isTyping={isOtherTyping} />}
+
       <div className="flex flex-col  flex-1 w-full min-h-0 bg-cover bg-center relative"
         style={{
           backgroundImage: `url(${BackgroundImg})`,
-          opacity: 1
+          opacity: 1,
+          paddingTop: isMobile ? 56 : 0 // leave space for mobile header
         }}
       >
         <div
@@ -142,7 +187,7 @@ export default function Chats({ selectedUserId, currentUserId, selectedUser }: C
             <input
               type="text"
               value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
+              onChange={handleInputChange}
               placeholder="Digite sua mensagem"
               className="w-full p-2 pl-5 rounded-full border text-black bg-gray-200 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
               disabled={!selectedUserId}

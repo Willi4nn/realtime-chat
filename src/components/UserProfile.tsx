@@ -3,8 +3,9 @@ import { User } from "../types/User";
 
 interface UserProfileProps {
   user: User | null;
+  isTyping?: boolean;
 }
-export default function UserProfile({ user }: UserProfileProps) {
+export default function UserProfile({ user, isTyping }: UserProfileProps) {
   return (
     <div className="flex items-center gap-3 h-15 p-4">
       <div className="w-8 h-8 rounded-full flex items-center justify-center">
@@ -18,7 +19,7 @@ export default function UserProfile({ user }: UserProfileProps) {
         <h3 className="text-white text-sm font-medium">
           {user?.name || 'Usuário'}
         </h3>
-        <p className="text-white/60 text-xs">Online</p>
+        <p className="text-white/60 text-xs">{isTyping ? "Digitando..." : ""}</p>
       </div>
     </div>
   )
