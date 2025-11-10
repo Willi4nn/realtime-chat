@@ -1,54 +1,50 @@
-# React + TypeScript + Vite
+# Realtime Chat (React + Firebase)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Chat em tempo real com React (Vite) e Firebase.
 
-Currently, two official plugins are available:
+### Recursos
+* Autenticação (Email/Google)
+* Firestore (Mensagens, Perfis)
+* Realtime Database (Status de Presença/Digitando)
+* Responsivo (Desktop/Mobile)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🚀 Quick Start
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1.  **Clone e instale:**
+    ```bash
+    cd realtime-chat
+    npm install
+    ```
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+2.  **Configure o Firebase:**
+    * Crie um projeto no [Console Firebase](https://console.firebase.google.com/).
+    * Ative **Authentication**, **Firestore** e **Realtime Database**.
+    * Obtenha as credenciais do SDK (Web App).
+    * Crie um arquivo `.env` na raiz do projeto.
+    * Adicione as credenciais ao `.env` com o prefixo `VITE_`:
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+    ```env
+    VITE_FIREBASE_API_KEY=
+    VITE_FIREBASE_AUTH_DOMAIN=
+    VITE_FIREBASE_PROJECT_ID=
+    VITE_FIREBASE_STORAGE_BUCKET=
+    VITE_FIREBASE_MESSAGING_SENDER_ID=
+    VITE_FIREBASE_APP_ID=
+    VITE_FIREBASE_MEASUREMENT_ID=
+    ```
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+3.  **Execute (exposto na rede local):**
+    ```bash
+    npm run dev -- --host
+    ```
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+---
+
+## 🛠️ Scripts
+
+* `npm run dev`: Inicia o servidor (apenas localhost).
+* `npm run dev -- --host`: Expõe o servidor na rede local.
+* `npm run build`: Gera o build de produção.
+* `npm run preview`: Visualiza o build de produção localmente.

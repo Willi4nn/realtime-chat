@@ -112,7 +112,6 @@ export default function Chats({ selectedUserId, currentUserId, selectedUser, isM
 
   return (
     <div className="flex flex-col h-full w-full">
-      {/* Mobile header with back button */}
       {isMobile && onBack && (
         <div className="absolute top-0 left-0 right-0 z-10 bg-slate-800/90 backdrop-blur-sm p-3 flex items-center gap-3">
           <button
@@ -132,14 +131,13 @@ export default function Chats({ selectedUserId, currentUserId, selectedUser, isM
         </div>
       )}
 
-      {/* On desktop UserProfile shows; on mobile we already show profile inside header above */}
       {!isMobile && <UserProfile user={selectedUser} isTyping={isOtherTyping} />}
 
       <div className="flex flex-col  flex-1 w-full min-h-0 bg-cover bg-center relative"
         style={{
           backgroundImage: `url(${BackgroundImg})`,
           opacity: 1,
-          paddingTop: isMobile ? 56 : 0 // leave space for mobile header
+          paddingTop: isMobile ? 56 : 0
         }}
       >
         <div

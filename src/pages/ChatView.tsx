@@ -15,8 +15,6 @@ export default function ChatView() {
   const { users, loading } = useUsers();
   const selectedUser = users.find(user => user.id === selectedUserId) || null;
   const [searchText, setSearchText] = useState("");
-
-  // mobile view state: when true we show only chat on mobile
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 840);
 
   useEffect(() => {
