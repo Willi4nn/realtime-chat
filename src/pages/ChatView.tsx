@@ -38,7 +38,7 @@ export default function ChatView() {
 
   return (
     <div className="flex h-screen justify-center items-center">
-      <MyProfile />
+      <MyProfile isMobile={isMobile} />
       <div className="bg-slate-700 w-full flex flex-col items-center h-full">
         <div className="flex flex-1 w-full min-h-0">
 

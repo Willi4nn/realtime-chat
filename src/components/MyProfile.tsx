@@ -1,14 +1,24 @@
 import { List, SignOut } from 'phosphor-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import defaultLogo from "../assets/profile-icon.png";
 import { useLogout } from '../hooks/useLogout';
 import useUserStore from '../store/useSlice';
 import { User } from '../types/User';
 
-export default function MyProfile() {
+interface MyProfileProps {
+  isMobile: boolean;
+}
+
+export default function MyProfile({ isMobile }: MyProfileProps) {
   const currentUser = useUserStore((state) => state.user) as User | null;
   const logout = useLogout();
   const [isExpanded, setIsExpanded] = useState(true);
+
+  useEffect(() => {
+    if (isMobile) {
+      setIsExpanded(false);
+    }
+  }, [isMobile]);
 
   const handleLogout = async () => {
     logout();
