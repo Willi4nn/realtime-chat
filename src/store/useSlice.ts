@@ -1,6 +1,6 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { User } from "../types/User";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { User } from '../types/User';
 
 interface UserState {
   user: User | null;
@@ -28,7 +28,7 @@ const useUserStore = create<UserState>()(
         }),
     }),
     {
-      name: "user-storage",
+      name: 'user-storage',
     }
   )
 );

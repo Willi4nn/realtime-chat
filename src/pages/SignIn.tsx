@@ -1,26 +1,32 @@
-import { AuthError, User as FirebaseUser, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { Eye, EyeSlash } from "phosphor-react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { auth, db } from "../firebase";
-import useUserStore from "../store/useSlice";
+import {
+  AuthError,
+  User as FirebaseUser,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { auth, db } from '../firebase';
+import useUserStore from '../store/useSlice';
 
 export default function SignIn() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const login = useUserStore((state) => state.login);
   const navigate = useNavigate();
 
   const updateOrCreateUserData = async (user: FirebaseUser): Promise<void> => {
-    const userRef = doc(db, "users", user.uid);
+    const userRef = doc(db, 'users', user.uid);
     let userDoc = await getDoc(userRef);
 
     if (!userDoc.exists()) {
       await setDoc(userRef, {
-        name: user.displayName || user.email || "Usuário",
+        name: user.displayName || user.email || 'Usuário',
         email: user.email,
         photo: user.photoURL || null,
       });
@@ -30,8 +36,8 @@ export default function SignIn() {
     const data = userDoc.data();
     login({
       id: user.uid,
-      name: data?.name || user.displayName || user.email || "Usuário",
-      email: data?.email || user.email || "",
+      name: data?.name || user.displayName || user.email || 'Usuário',
+      email: data?.email || user.email || '',
       photo: data?.photo || user.photoURL || null,
     });
   };
@@ -39,16 +45,22 @@ export default function SignIn() {
   const handleSignIn = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
 
       await updateOrCreateUserData(user);
-      toast.success("Login realizado com sucesso!");
-      navigate("/chats");
+      toast.success('Login realizado com sucesso!');
+      navigate('/chats');
     } catch (error) {
-      console.error("Erro ao fazer login:", error);
+      console.error('Erro ao fazer login:', error);
       toast.error(
-        `Erro ao fazer login: ${(error as AuthError).message || "Tente novamente."}`
+        `Erro ao fazer login: ${
+          (error as AuthError).message || 'Tente novamente.'
+        }`
       );
     }
   };
@@ -61,100 +73,75 @@ export default function SignIn() {
 
       await updateOrCreateUserData(user);
 
-      toast.success("Login com Google realizado com sucesso!");
-      navigate("/chats");
+      toast.success('Login com Google realizado com sucesso!');
+      navigate('/chats');
     } catch (error) {
-      console.error("Erro ao fazer login com Google:", error);
+      console.error('Erro ao fazer login com Google:', error);
       const authError = error as AuthError;
       toast.error(
-        `Erro ao fazer login com Google: ${authError.message || "Tente novamente."}`
+        `Erro ao fazer login com Google: ${
+          authError.message || 'Tente novamente.'
+        }`
       );
     }
   };
 
-  const handleSignUpClick = (): void => {
-    navigate('/signup');
-  };
-
   return (
-    <div className="flex justify-center items-center h-screen w-full">
-      <div className="flex flex-col p-6 rounded-xl justify-between items-center bg-slate-900 shadow-lg shadow-slate-900/50 w-80 space-y-4">
-        <h2 className="text-xl font-semibold text-white">Entrar</h2>
+    <div className="flex justify-center items-center min-h-[100dvh] w-full bg-gradient-to-br from-slate-950 to-slate-900 p-4">
+      <div className="flex flex-col p-8 rounded-2xl items-center bg-slate-900/80 backdrop-blur-md border border-slate-800 shadow-2xl w-full max-w-md space-y-6">
+        <div className="text-center space-y-2">
+          <h2 className="text-3xl font-bold text-white">Bem-vindo</h2>
+          <p className="text-slate-400 text-sm">
+            Entre na sua conta para continuar
+          </p>
+        </div>
 
-        <form className="w-full space-y-3" onSubmit={handleSignIn}>
-          <input
-            type="email"
-            placeholder="Email"
+        <form className="w-full space-y-4" onSubmit={handleSignIn}>
+          <Input
+            label="E-mail"
+            placeholder="seu@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 rounded bg-slate-700 text-white border border-slate-600 focus:ring-1 focus:ring-indigo-400 focus:outline-none"
             required
           />
-          <div className="relative w-full">
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Senha"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 rounded bg-slate-700 text-white border border-slate-600 focus:ring-1 focus:ring-indigo-400 focus:outline-none"
-              required
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-2 flex items-center text-slate-400 hover:text-white"
-              tabIndex={-1}
-            >
-              {showPassword ? (
-                <EyeSlash size={20} weight="bold" />
-              ) : (
-                <Eye size={20} weight="bold" />
-              )}
-            </button>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium p-2 rounded transition-colors"
-          >
-            Entrar
-          </button>
+          <Input
+            label="Senha"
+            isPassword
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <Button type="submit">Entrar</Button>
         </form>
 
-        <div className="relative w-full my-4">
+        <div className="relative w-full">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-slate-700" />
+            <span className="w-full border-t border-slate-800" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-slate-900 px-2 text-slate-400">
-              Ou entre com
-            </span>
+            <span className="bg-slate-900 px-4 text-slate-500">Ou</span>
           </div>
         </div>
 
-        <div className="w-full space-y-2">
-          <button
-            onClick={handleGoogleSignIn}
-            className="w-full flex items-center justify-center p-2 rounded bg-white text-black font-medium transition-colors"
-            type="button"
-          >
-            <img
-              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-              alt="Google"
-              className="w-5 h-5 mr-2"
-            />
-            Google
-          </button>
-        </div>
+        <Button variant="google" onClick={handleGoogleSignIn} type="button">
+          <img
+            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+            className="w-5 h-5"
+            alt="Google"
+          />
+          Entrar com Google
+        </Button>
 
-        <p className="text-center text-sm text-slate-300">
-          Não tem uma conta? <span
-            onClick={handleSignUpClick}
-            className="text-indigo-400 cursor-pointer hover:underline font-medium"
-            role="button"
+        <p className="text-center text-sm text-slate-400">
+          Não tem uma conta?{' '}
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/signup')}
+            className="inline w-auto p-0 h-auto"
           >
             Cadastre-se
-          </span>
+          </Button>
         </p>
       </div>
     </div>

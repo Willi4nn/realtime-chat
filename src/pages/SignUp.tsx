@@ -1,23 +1,24 @@
-import imageCompression from "browser-image-compression";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
-import { Eye, EyeSlash } from "phosphor-react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import imageCompression from 'browser-image-compression';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { Eye } from 'phosphor-react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import defaultLogo from "../assets/profile-icon.png";
-import { auth, db } from "../firebase";
-import useUserStore from "../store/useSlice";
+import defaultLogo from '../assets/profile-icon.png';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { auth, db } from '../firebase';
+import useUserStore from '../store/useSlice';
 
 export default function SignUp() {
   const login = useUserStore((state) => state.login);
   const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [photo, setPhoto] = useState<string>("");
-  const [signUpText, setSignUpText] = useState("Cadastrar");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [photo, setPhoto] = useState<string>('');
+  const [signUpText, setSignUpText] = useState('Cadastrar');
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -37,17 +38,21 @@ export default function SignUp() {
         };
         reader.readAsDataURL(compressedFile);
       } catch (error) {
-        console.error("Erro ao comprimir a imagem:", error);
-        toast.error("Erro ao processar a imagem. Tente novamente.");
+        console.error('Erro ao comprimir a imagem:', error);
+        toast.error('Erro ao processar a imagem. Tente novamente.');
       }
     }
   };
 
   const handleSignUp = async (): Promise<void> => {
     try {
-      setSignUpText("Cadastrando...");
+      setSignUpText('Cadastrando...');
 
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       await updateUserData(userCredential.user.uid, photo);
 
       login({
@@ -57,113 +62,103 @@ export default function SignUp() {
         photo: photo || null,
       });
 
-      setName("");
-      setEmail("");
-      setPassword("");
-      setPhoto("");
+      setName('');
+      setEmail('');
+      setPassword('');
+      setPhoto('');
 
-      toast.success("Conta criada com sucesso!");
-      navigate("/chats");
+      toast.success('Conta criada com sucesso!');
+      navigate('/chats');
     } catch (err) {
       if (err instanceof Error) {
-        console.error("Erro ao criar conta:", err.message);
+        console.error('Erro ao criar conta:', err.message);
         toast.error(`Ocorreu um erro ao criar sua conta: ${err.message}`);
       }
     } finally {
-      setSignUpText("Cadastrar");
+      setSignUpText('Cadastrar');
     }
-  };
-
-  const handleLoginClick = () => {
-    navigate('/login');
   };
 
   const updateUserData = async (userId: string, photo: string) => {
     try {
-      await setDoc(doc(db, "users", userId), {
+      await setDoc(doc(db, 'users', userId), {
         name: name,
         email: email,
         photo: photo || null,
-      })
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar dados do usuário:', error);
+      toast.error('Erro ao atualizar dados do usuário.');
     }
-    catch (error) {
-      console.error("Erro ao atualizar dados do usuário:", error);
-      toast.error("Erro ao atualizar dados do usuário.");
-    }
-  }
+  };
 
   return (
-    <div className="flex justify-center items-center h-screen w-full">
-      <div className="flex flex-col p-6 rounded-xl justify-between items-center bg-slate-900 shadow-lg shadow-slate-900/50 w-80 space-y-4">
-        <h2 className="text-xl font-semibold text-white">Cadastrar</h2>
-        <img src={photo || defaultLogo} alt="Foto de perfil" className="w-16 h-16 rounded-full" />
-        <div className="w-full space-y-3">
-          <div className="w-full">
-            <label
-              htmlFor="photo-upload"
-              className="block w-full p-2 text-center rounded bg-slate-700 text-white border border-slate-600 cursor-pointer hover:bg-slate-600 focus:ring-1 focus:ring-indigo-400 focus:outline-none"
-            >
-              Escolher Imagem
-            </label>
-            <input
-              id="photo-upload"
-              type="file"
-              accept="image/*"
-              onChange={(e) => handlePhotoUpload(e)}
-              className="hidden"
-            />
-          </div>
-          <input
-            type="text"
-            placeholder="Nome"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full p-2 rounded bg-slate-700 text-white border border-slate-600 focus:ring-1 focus:ring-indigo-400 focus:outline-none"
+    <div className="flex justify-center items-center min-h-[100dvh] w-full bg-gradient-to-br from-slate-950 to-slate-900 p-4">
+      <div className="flex flex-col p-8 rounded-2xl items-center bg-slate-900/80 backdrop-blur-md border border-slate-800 shadow-2xl w-full max-w-md space-y-6">
+        <h2 className="text-3xl font-bold text-white">Criar Conta</h2>
+
+        <div className="relative group">
+          <img
+            src={photo || defaultLogo}
+            className="w-24 h-24 rounded-full border-4 border-slate-800 object-cover shadow-xl group-hover:border-indigo-500 transition-all"
           />
+          <label
+            htmlFor="photo-upload"
+            className="absolute bottom-0 right-0 bg-indigo-600 p-2 rounded-full text-white cursor-pointer shadow-lg hover:scale-110 transition-transform"
+          >
+            <Eye size={20} />
+          </label>
           <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 rounded bg-slate-700 text-white border border-slate-600 focus:ring-1 focus:ring-indigo-400 focus:outline-none"
+            id="photo-upload"
+            type="file"
+            accept="image/*"
+            onChange={handlePhotoUpload}
+            className="hidden"
           />
-          <div className="relative w-full">
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Senha"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 rounded bg-slate-700 text-white border border-slate-600 focus:ring-1 focus:ring-indigo-400 focus:outline-none"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-2 flex items-center text-slate-400 hover:text-white"
-            >
-              {showPassword ? (
-                <EyeSlash size={20} weight="bold" />
-              ) : (
-                <Eye size={20} weight="bold" />
-              )}
-            </button>
-          </div>
         </div>
 
-        <div className="w-full space-y-2">
-          <button
-            onClick={handleSignUp}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium p-2 rounded transition-colors">
+        <form
+          className="w-full space-y-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSignUp();
+          }}
+        >
+          <Input
+            label="Nome"
+            placeholder="Seu nome"
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+          <Input
+            label="E-mail"
+            type="email"
+            placeholder="seu@email.com"
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <Input
+            label="Senha"
+            isPassword
+            placeholder="Sua senha"
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <Button type="submit" loading={signUpText === 'Cadastrando...'}>
             {signUpText}
-          </button>
-          <p className="text-center text-sm text-slate-300">
-            Já possui uma conta? <span
-              onClick={handleLoginClick}
-              className="text-indigo-400 cursor-pointer hover:underline font-medium"
-            >
-              Login
-            </span>
-          </p>
-        </div>
+          </Button>
+        </form>
+
+        <p className="text-center text-sm text-slate-400">
+          Já possui conta?{' '}
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/login')}
+            className="inline w-auto p-0 h-auto"
+          >
+            Login
+          </Button>
+        </p>
       </div>
     </div>
   );
